@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router-dom'
 
 import { getRoomById } from '../services/roomApi'
 import type { Room } from '../types/room'
+import PublicRoomPhotos from '../components/PublicRoomPhotos'
 
 type RoomState = {
   roomId: number
@@ -114,6 +115,7 @@ function RoomDetailPage() {
               </span>
 
               <h1>{room.title}</h1>
+              <PublicRoomPhotos roomId={room.id} />
               <p>📍 {room.address}</p>
             </div>
 
