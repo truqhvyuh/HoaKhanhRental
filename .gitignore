@@ -1,0 +1,39 @@
+
+# Java / Gradle
+**/build/
+**/.gradle/
+**/out/
+*.class
+
+# IntelliJ
+.idea/
+*.iml
+
+# React / Node
+**/node_modules/
+**/dist/
+**/coverage/
+*.tsbuildinfo
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+**/application-local.properties
+**/application-secret.properties
+
+# Uploaded images
+uploads/
+**/uploads/
+
+# Logs
+*.log
+*.tmp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local editor settings
+.vscode/
