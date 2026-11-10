@@ -38,7 +38,7 @@ Frontend:
 Windows CMD:
 
     cd backend\backend
-    gradlew.bat bootRun
+    mvnw.cmd spring-boot:run
 
 Backend: http://localhost:8080
 
