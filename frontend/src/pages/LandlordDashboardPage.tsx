@@ -103,6 +103,13 @@ useEffect(() => {
           + Đăng tin phòng trọ
         </Link>
 
+        <Link
+          to="/landlord/contact-requests"
+          className="auth-submit room-create-link"
+        >
+          Xem yêu cầu liên hệ
+        </Link>
+
         <h2>Danh sách phòng đã đăng</h2>
 
         {loading && <p>Đang tải danh sách phòng...</p>}
@@ -133,6 +140,14 @@ useEffect(() => {
                     {getModerationLabel(room.moderationStatus)}
                   </span>
                 </div>
+
+                {room.moderationStatus === 'REJECTED' &&
+                  room.rejectionReason && (
+                    <p className="landlord-room-id">
+                      <strong>Lý do từ chối:</strong>{' '}
+                      {room.rejectionReason}
+                    </p>
+                  )}
 
                 <p>{room.address}</p>
 

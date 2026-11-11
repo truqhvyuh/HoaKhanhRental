@@ -1,10 +1,16 @@
 
 import { useEffect, useState } from 'react'
+import type { FormEvent } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
 import { getRoomById } from '../services/roomApi'
 import type { Room } from '../types/room'
 import PublicRoomPhotos from '../components/PublicRoomPhotos'
+import { useAuth } from '../contexts/useAuth'
+import {
+  createContactRequestApi,
+  type ContactRequest,
+} from '../services/contactRequestApi'
 
 type RoomState = {
   roomId: number
@@ -14,6 +20,13 @@ type RoomState = {
 
 function RoomDetailPage() {
   const { id } = useParams<{ id: string }>()
+  const { user, token, loading: authLoading } = useAuth()
+
+  const [contactMessage, setContactMessage] = useState('')
+  const [contactSubmitting, setContactSubmitting] = useState(false)
+  const [contactError, setContactError] = useState('')
+  const [contactSuccess, setContactSuccess] =
+    useState<ContactRequest | null>(null)
 
   const roomId = id ? Number(id) : NaN
 
@@ -23,6 +36,10 @@ function RoomDetailPage() {
   const [roomState, setRoomState] = useState<RoomState | null>(null)
 
   useEffect(() => {
+    setContactMessage('')
+    setContactError('')
+    setContactSuccess(null)
+
     if (!validRoomId) {
       return
     }
@@ -78,6 +95,43 @@ function RoomDetailPage() {
       currency: 'VND',
       maximumFractionDigits: 0,
     }).format(price)
+
+  async function handleContactSubmit(
+    event: FormEvent<HTMLFormElement>
+  ) {
+    event.preventDefault()
+
+    if (
+      !room ||
+      !token ||
+      user?.role !== 'STUDENT' ||
+      contactSubmitting
+    ) {
+      return
+    }
+
+    setContactSubmitting(true)
+    setContactError('')
+
+    try {
+      const result = await createContactRequestApi(
+        room.id,
+        contactMessage,
+        token
+      )
+
+      setContactSuccess(result)
+      setContactMessage('')
+    } catch (err) {
+      setContactError(
+        err instanceof Error
+          ? err.message
+          : 'Không thể gửi yêu cầu liên hệ.'
+      )
+    } finally {
+      setContactSubmitting(false)
+    }
+  }
 
   return (
     <div className="detail-page">
@@ -172,10 +226,98 @@ function RoomDetailPage() {
 
                 <p>Phòng trọ đang có sẵn để tham khảo.</p>
 
-                <div className="detail-notice">
-                  Chức năng liên hệ chủ trọ sẽ được
-                  xây dựng ở bước tiếp theo.
-                </div>
+                {authLoading ? (
+                  <div className="detail-notice">
+                    Đang kiểm tra trạng thái đăng nhập...
+                  </div>
+                ) : !user || !token ? (
+                  <div className="detail-notice">
+                    <p>
+                      Bạn cần đăng nhập để gửi yêu cầu
+                      liên hệ chủ trọ.
+                    </p>
+                    <Link to="/login">
+                      Đăng nhập ngay
+                    </Link>
+                  </div>
+                ) : user.role === 'STUDENT' ? (
+                  contactSuccess ? (
+                    <div className="detail-notice" role="status">
+                      <p>
+                        <strong>
+                          Đã gửi yêu cầu liên hệ thành công!
+                        </strong>
+                      </p>
+
+                      <p>
+                        Chủ trọ: {contactSuccess.landlordName}
+                      </p>
+
+                      {contactSuccess.landlordPhone ? (
+                        <p>
+                          Bạn có thể gọi trực tiếp cho chủ trọ:
+                          {' '}
+                          <a
+                            href={`tel:${contactSuccess.landlordPhone}`}
+                          >
+                            {contactSuccess.landlordPhone}
+                          </a>
+                        </p>
+                      ) : (
+                        <p>
+                          Chủ trọ chưa cung cấp số điện thoại.
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <>
+                      <h2>Liên hệ chủ trọ</h2>
+
+                      {contactError && (
+                        <div
+                          className="auth-error"
+                          role="alert"
+                        >
+                          {contactError}
+                        </div>
+                      )}
+
+                      <form
+                        className="room-edit-form"
+                        onSubmit={handleContactSubmit}
+                      >
+                        <label htmlFor="contact-message">
+                          Lời nhắn (không bắt buộc)
+                          <textarea
+                            id="contact-message"
+                            value={contactMessage}
+                            onChange={(event) =>
+                              setContactMessage(event.target.value)
+                            }
+                            maxLength={1000}
+                            rows={4}
+                            placeholder="Ví dụ: Tôi muốn hỏi thêm về phòng và thời gian có thể xem phòng."
+                          />
+                        </label>
+
+                        <button
+                          type="submit"
+                          disabled={contactSubmitting}
+                        >
+                          {contactSubmitting
+                            ? 'Đang gửi...'
+                            : 'Gửi yêu cầu liên hệ'}
+                        </button>
+                      </form>
+                    </>
+                  )
+                ) : (
+                  <div className="detail-notice">
+                    Đây là chế độ xem dành cho chủ trọ
+                    và quản trị viên. Chức năng gửi yêu cầu
+                    liên hệ chỉ dành cho sinh viên.
+                  </div>
+                )}
 
                 <Link
                   to="/"

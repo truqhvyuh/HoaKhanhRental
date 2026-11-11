@@ -63,13 +63,25 @@ function AdminDashboardPage() {
   ) {
     if (!token || processingId !== null) return
 
-    const confirmed = window.confirm(
-      action === 'approve'
-        ? 'Bạn muốn duyệt tin đăng này?'
-        : 'Bạn muốn từ chối tin đăng này?'
-    )
+    let rejectionReason = ''
 
-    if (!confirmed) return
+    if (action === 'approve') {
+      const confirmed = window.confirm(
+        'Bạn muốn duyệt tin đăng này?'
+      )
+
+      if (!confirmed) return
+    } else {
+      const input = window.prompt(
+        'Nhập lý do từ chối tin đăng này:'
+      )
+
+      if (input === null) return
+
+      rejectionReason = input.trim()
+
+      if (!rejectionReason) return
+    }
 
     setProcessingId(roomId)
     setError('')
@@ -78,7 +90,11 @@ function AdminDashboardPage() {
       if (action === 'approve') {
         await approveRoomApi(roomId, token)
       } else {
-        await rejectRoomApi(roomId, token)
+        await rejectRoomApi(
+          roomId,
+          rejectionReason,
+          token
+        )
       }
 
       setRooms((previous) =>

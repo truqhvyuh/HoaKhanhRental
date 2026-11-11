@@ -58,6 +58,7 @@ export interface LandlordRoom {
   areaSqm: number
   maxOccupants: number
   moderationStatus: string
+  rejectionReason: string | null
   occupancyStatus: string
   visibilityStatus: string
 }

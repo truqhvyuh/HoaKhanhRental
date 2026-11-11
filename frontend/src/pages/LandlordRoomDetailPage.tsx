@@ -193,6 +193,14 @@ function LandlordRoomDetailPage() {
             </span>
           </div>
 
+          {room.moderationStatus === 'REJECTED' &&
+            room.rejectionReason && (
+              <p className="landlord-room-id">
+                <strong>Lý do từ chối:</strong>{' '}
+                {room.rejectionReason}
+              </p>
+            )}
+
           <p className="landlord-room-id">
             Mã phòng: #{room.id}
           </p>

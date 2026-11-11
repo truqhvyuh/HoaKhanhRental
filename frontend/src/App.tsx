@@ -12,6 +12,7 @@ import { useAuth } from './contexts/useAuth'
 import RegisterPage from './pages/RegisterPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import LandlordDashboardPage from './pages/LandlordDashboardPage'
+import LandlordContactRequestsPage from './pages/LandlordContactRequestsPage'
 import CreateRoomPage from './pages/CreateRoomPage'
 import LandlordRoomDetailPage from './pages/LandlordRoomDetailPage'
 import EditRoomPage from './pages/EditRoomPage'
@@ -463,6 +464,15 @@ function App() {
         element={
           <ProtectedRoute allowedRoles={['LANDLORD']}>
             <LandlordDashboardPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/landlord/contact-requests"
+        element={
+          <ProtectedRoute allowedRoles={['LANDLORD']}>
+            <LandlordContactRequestsPage />
           </ProtectedRoute>
         }
       />

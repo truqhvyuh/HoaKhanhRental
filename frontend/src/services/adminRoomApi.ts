@@ -1,4 +1,3 @@
-
 export interface AdminRoom {
   id: number
   title: string
@@ -9,6 +8,7 @@ export interface AdminRoom {
   areaSqm: number
   maxOccupants: number
   moderationStatus: string
+  rejectionReason: string | null
   occupancyStatus: string
   visibilityStatus: string
   landlordId: number
@@ -17,14 +17,24 @@ export interface AdminRoom {
 async function adminRequest<T>(
   path: string,
   token: string,
-  method: 'GET' | 'PATCH' = 'GET'
+  method: 'GET' | 'PATCH' = 'GET',
+  body?: unknown
 ): Promise<T> {
-  const response = await fetch(`/api/v1/admin/rooms${path}`, {
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${token}`,
+  }
+
+  const options: RequestInit = {
     method,
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  })
+    headers,
+  }
+
+  if (body !== undefined) {
+    headers['Content-Type'] = 'application/json'
+    options.body = JSON.stringify(body)
+  }
+
+  const response = await fetch(`/api/v1/admin/rooms${path}`, options)
 
   if (!response.ok) {
     if (response.status === 401) {
@@ -33,6 +43,10 @@ async function adminRequest<T>(
 
     if (response.status === 403) {
       throw new Error('Tài khoản không có quyền ADMIN.')
+    }
+
+    if (response.status === 400) {
+      throw new Error('Lý do từ chối không hợp lệ.')
     }
 
     if (response.status === 409) {
@@ -57,10 +71,15 @@ export function approveRoomApi(id: number, token: string) {
   )
 }
 
-export function rejectRoomApi(id: number, token: string) {
+export function rejectRoomApi(
+  id: number,
+  rejectionReason: string,
+  token: string
+) {
   return adminRequest<AdminRoom>(
     `/${id}/reject`,
     token,
-    'PATCH'
+    'PATCH',
+    { rejectionReason }
   )
 }
