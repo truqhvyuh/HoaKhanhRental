@@ -79,9 +79,11 @@ public class LandlordRoomController {
 
     @GetMapping
     public List<LandlordRoomResponse> getMyRooms(
-            @AuthenticationPrincipal Jwt jwt
+            @AuthenticationPrincipal Jwt jwt,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size
     ) {
-        return landlordRoomService.getMyRooms(jwt);
+        return landlordRoomService.getMyRooms(jwt, page, size);
     }
 
     @PatchMapping("/{roomId}/status")

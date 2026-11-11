@@ -27,16 +27,19 @@ public class AuthService {
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final LoginRateLimiter loginRateLimiter;
 
 
     public AuthService(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
-            JwtService jwtService
+            JwtService jwtService,
+            LoginRateLimiter loginRateLimiter
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.loginRateLimiter = loginRateLimiter;
     }
 
 
@@ -93,14 +96,20 @@ public class AuthService {
                 .trim()
                 .toLowerCase(Locale.ROOT);
 
+        loginRateLimiter.assertNotBlocked(email);
+
         User user = userRepository
                 .findByEmailIgnoreCase(email)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.UNAUTHORIZED,
-                        "Email hoac mat khau khong dung"
-                ));
+                .orElseThrow(() -> {
+                    loginRateLimiter.recordFailure(email);
+                    return new ResponseStatusException(
+                            HttpStatus.UNAUTHORIZED,
+                            "Email hoac mat khau khong dung"
+                    );
+                });
 
         if (!user.isActive()) {
+            loginRateLimiter.recordFailure(email);
             throw new ResponseStatusException(
                     HttpStatus.UNAUTHORIZED,
                     "Email hoac mat khau khong dung"
@@ -113,11 +122,14 @@ public class AuthService {
         );
 
         if (!passwordMatches) {
+            loginRateLimiter.recordFailure(email);
             throw new ResponseStatusException(
                     HttpStatus.UNAUTHORIZED,
                     "Email hoac mat khau khong dung"
             );
         }
+
+        loginRateLimiter.recordSuccess(email);
 
         String token = jwtService.generateToken(user);
 
