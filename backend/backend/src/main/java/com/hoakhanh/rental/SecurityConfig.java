@@ -103,6 +103,27 @@ public class SecurityConfig {
                                 "/api/v1/auth/me"
                         ).authenticated()
 
+                        // Contact requests
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/v1/rooms/*/contact-requests"
+                        ).authenticated()
+
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/v1/contact-requests/mine"
+                        ).authenticated()
+
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/v1/landlord/contact-requests"
+                        ).authenticated()
+
+                        .requestMatchers(
+                                HttpMethod.PATCH,
+                                "/api/v1/landlord/contact-requests/*/status"
+                        ).authenticated()
+
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
