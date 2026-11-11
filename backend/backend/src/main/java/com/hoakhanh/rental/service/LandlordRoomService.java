@@ -12,6 +12,9 @@ import com.hoakhanh.rental.repository.RoomRepository;
 import com.hoakhanh.rental.repository.UserRepository;
 import com.hoakhanh.rental.dto.LandlordRoomResponse;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import com.hoakhanh.rental.dto.UpdateRoomRequest;
@@ -175,6 +178,7 @@ public class LandlordRoomService {
 
         // Nội dung thay đổi phải được duyệt lại.
         room.setModerationStatus(ModerationStatus.PENDING);
+        room.setRejectionReason(null);
 
         Room updated = roomRepository.save(room);
         return LandlordRoomResponse.from(updated);
@@ -182,7 +186,18 @@ public class LandlordRoomService {
 
 
     @Transactional(readOnly = true)
-    public List<LandlordRoomResponse> getMyRooms(Jwt jwt) {
+    public List<LandlordRoomResponse> getMyRooms(
+            Jwt jwt,
+            int page,
+            int size
+    ) {
+        if (page < 0 || size < 1 || size > 100) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Invalid pagination parameters"
+            );
+        }
+
         Long userId;
 
         try {
@@ -214,10 +229,20 @@ public class LandlordRoomService {
             );
         }
 
-        return roomRepository
-                .findByLandlord_IdAndDeletedAtIsNullOrderByCreatedAtDesc(
-                        landlord.getId()
-                )
+        Page<Room> roomPage = roomRepository
+                .findByLandlord_IdAndDeletedAtIsNull(
+                        landlord.getId(),
+                        PageRequest.of(
+                                page,
+                                size,
+                                Sort.by(
+                                        Sort.Direction.DESC,
+                                        "createdAt"
+                                )
+                        )
+                );
+
+        return roomPage.getContent()
                 .stream()
                 .map(LandlordRoomResponse::from)
                 .toList();

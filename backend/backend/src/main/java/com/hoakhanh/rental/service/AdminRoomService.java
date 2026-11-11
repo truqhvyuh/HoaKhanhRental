@@ -5,6 +5,9 @@ import com.hoakhanh.rental.dto.AdminRoomResponse;
 import com.hoakhanh.rental.entity.*;
 import com.hoakhanh.rental.repository.RoomRepository;
 import com.hoakhanh.rental.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -68,13 +71,34 @@ public class AdminRoomService {
     }
 
     @Transactional(readOnly = true)
-    public List<AdminRoomResponse> getPendingRooms(Jwt jwt) {
+    public List<AdminRoomResponse> getPendingRooms(
+            Jwt jwt,
+            int page,
+            int size
+    ) {
+        if (page < 0 || size < 1 || size > 100) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Invalid pagination parameters"
+            );
+        }
+
         requireAdmin(jwt);
 
-        return roomRepository
-                .findByModerationStatusAndDeletedAtIsNullOrderByCreatedAtAsc(
-                        ModerationStatus.PENDING
-                )
+        Page<Room> roomPage = roomRepository
+                .findByModerationStatusAndDeletedAtIsNull(
+                        ModerationStatus.PENDING,
+                        PageRequest.of(
+                                page,
+                                size,
+                                Sort.by(
+                                        Sort.Direction.ASC,
+                                        "createdAt"
+                                )
+                        )
+                );
+
+        return roomPage.getContent()
                 .stream()
                 .map(AdminRoomResponse::from)
                 .toList();
@@ -86,16 +110,22 @@ public class AdminRoomService {
 
         Room room = getPendingRoom(roomId);
         room.setModerationStatus(ModerationStatus.APPROVED);
+        room.setRejectionReason(null);
 
         return AdminRoomResponse.from(roomRepository.save(room));
     }
 
     @Transactional
-    public AdminRoomResponse rejectRoom(Long roomId, Jwt jwt) {
+    public AdminRoomResponse rejectRoom(
+            Long roomId,
+            String rejectionReason,
+            Jwt jwt
+    ) {
         requireAdmin(jwt);
 
         Room room = getPendingRoom(roomId);
         room.setModerationStatus(ModerationStatus.REJECTED);
+        room.setRejectionReason(rejectionReason.trim());
 
         return AdminRoomResponse.from(roomRepository.save(room));
     }

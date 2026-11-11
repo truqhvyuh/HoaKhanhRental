@@ -28,21 +28,35 @@ Frontend:
 
 1. Cài Java 21 và PostgreSQL.
 2. Tạo database `hoakhanh_rental`.
-3. Cấu hình các biến môi trường:
-    - DB_PASSWORD
-    - JWT_SECRET
-    - UPLOAD_DIR (tùy chọn)
-4. Đảm bảo username, port và các cấu hình khác
-   trong application.properties phù hợp với máy.
+3. Cấu hình hai biến môi trường bắt buộc:
+   - `DB_PASSWORD`: mật khẩu PostgreSQL.
+   - `JWT_SECRET`: khóa bí mật dùng để ký JWT.
+
+4. Các biến môi trường tùy chọn:
+
+   | Biến môi trường | Giá trị mặc định | Mô tả |
+   |---|---|---|
+   | `DB_URL` | `jdbc:postgresql://localhost:5432/hoakhanh_rental` | Địa chỉ kết nối PostgreSQL |
+   | `DB_USERNAME` | `postgres` | Tên người dùng PostgreSQL |
+   | `UPLOAD_DIR` | `uploads/rooms` | Thư mục lưu ảnh phòng |
+   | `SHOW_SQL` | `false` | Đặt `true` để bật hiển thị SQL |
 
 Windows CMD:
+
+    set "DB_PASSWORD=your_db_password"
+    set "JWT_SECRET=your_jwt_secret"
 
     cd backend\backend
     mvnw.cmd spring-boot:run
 
+Nếu muốn sử dụng cấu hình riêng, có thể đặt thêm các biến
+DB_URL, DB_USERNAME, UPLOAD_DIR và SHOW_SQL trước khi chạy.
+
 Backend: http://localhost:8080
 
 Flyway tự chạy migration khi khởi động.
+
+Ghi chú: Hai biến DB_PASSWORD và JWT_SECRET vẫn bắt buộc như trước. Các biến còn lại có giá trị mặc định nên máy dev không cần khai báo nếu sử dụng cấu hình mặc định.
 
 ## Chạy frontend
 

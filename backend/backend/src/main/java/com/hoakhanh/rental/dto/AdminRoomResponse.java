@@ -14,6 +14,7 @@ public record AdminRoomResponse(
         BigDecimal areaSqm,
         Integer maxOccupants,
         String moderationStatus,
+        String rejectionReason,
         String occupancyStatus,
         String visibilityStatus,
         Long landlordId
@@ -29,6 +30,7 @@ public record AdminRoomResponse(
                 room.getAreaSqm(),
                 room.getMaxOccupants(),
                 room.getModerationStatus().name(),
+                room.getRejectionReason(),
                 room.getOccupancyStatus().name(),
                 room.getVisibilityStatus().name(),
                 room.getLandlord().getId()

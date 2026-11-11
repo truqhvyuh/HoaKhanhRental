@@ -14,6 +14,7 @@ public record LandlordRoomResponse(
         BigDecimal areaSqm,
         Integer maxOccupants,
         String moderationStatus,
+        String rejectionReason,
         String occupancyStatus,
         String visibilityStatus
 ) {
@@ -28,6 +29,7 @@ public record LandlordRoomResponse(
                 room.getAreaSqm(),
                 room.getMaxOccupants(),
                 room.getModerationStatus().name(),
+                room.getRejectionReason(),
                 room.getOccupancyStatus().name(),
                 room.getVisibilityStatus().name()
         );

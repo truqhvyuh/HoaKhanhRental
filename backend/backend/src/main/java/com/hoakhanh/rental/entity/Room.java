@@ -44,6 +44,11 @@ public class Room {
     private ModerationStatus moderationStatus =
             ModerationStatus.PENDING;
 
+    @Column(name = "rejection_reason",
+            columnDefinition = "TEXT",
+            nullable = true)
+    private String rejectionReason;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "occupancy_status", nullable = false)
     private OccupancyStatus occupancyStatus =
@@ -153,6 +158,14 @@ public class Room {
     public void setModerationStatus(
             ModerationStatus moderationStatus) {
         this.moderationStatus = moderationStatus;
+    }
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
     }
 
     public OccupancyStatus getOccupancyStatus() {
