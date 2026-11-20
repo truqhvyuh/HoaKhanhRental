@@ -37,3 +37,7 @@ Thumbs.db
 
 # Local editor settings
 .vscode/
+
+# maven
+target/*
+pom,xml
