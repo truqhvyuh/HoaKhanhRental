@@ -8,10 +8,9 @@ khu vực Hòa Khánh, Đà Nẵng.
 
 Backend:
 - Java 21
-- Spring Boot 4.1.2
-- Spring Security + JWT
-- PostgreSQL
-- Flyway
+- Javalin 6.7.0
+- Bcrypt 0.4
+- SQLite 3.51.0
 
 Frontend:
 - React
