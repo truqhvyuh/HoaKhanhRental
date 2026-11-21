@@ -20,28 +20,18 @@ Frontend:
 
 ## Cấu trúc
 
-- backend/backend: Spring Boot
+- backend/backend: Javalin
 - frontend: React
 
 ## Chạy backend
 
-1. Cài Java 21 và PostgreSQL.
-2. Tạo database `hoakhanh_rental`.
-3. Cấu hình các biến môi trường:
-    - DB_PASSWORD
-    - JWT_SECRET
-    - UPLOAD_DIR (tùy chọn)
-4. Đảm bảo username, port và các cấu hình khác
-   trong application.properties phù hợp với máy.
+Cài Java 21, mở terminal tại thư mục gốc và chạy:
 
-Windows CMD:
+    java -jar backend\room-rental-backend.jar
 
-    cd backend\backend
-    mvnw.cmd spring-boot:run
+API: http://127.0.0.1:7070. Nhấn `Ctrl+C` để dừng.
 
-Backend: http://localhost:8080
-
-Flyway tự chạy migration khi khởi động.
+Xem [ghi chú vận hành server](backend/SERVER-OPERATIONS.md) để biết thêm về cấu hình và dữ liệu.
 
 ## Chạy frontend
 
